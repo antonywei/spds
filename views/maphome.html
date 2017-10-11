@@ -1,0 +1,270 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+    body,
+    html {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        font-family: "微软雅黑";
+        background-image: url("/images/homebg.png");
+    }
+
+    #allmap {
+        width: 100%;
+        height: 95%;
+    }
+
+    p {
+        margin-left: 5px;
+        font-size: 14px;
+    }
+
+    .dblock {
+        position: relative;
+        z-index: 100;
+        width: 100%;
+        min-width: 1280px;
+        height: 60px;
+        padding-top: 10px;
+        line-height: 20px;
+        color: #A9AFB7;
+        border-top: 1px solid #CCCCCC;
+        text-align: center;
+    }
+    </style>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=dGNfI0vwQAyWQv7dGxr9SZHT6IlGytL6"></script>
+    <script type="text/javascript" src="/login/js/jquery.js"></script>
+    <script type="text/javascript" src="/login/js/jquery.i18n.properties-1.0.9.js"></script>
+    <script type="text/javascript" src="/login/js/jquery-ui-1.10.3.custom.js"></script>
+    <script type="text/javascript" src="/login/js/jquery.validate.js"></script>
+    <title>当前积水信息</title>
+</head>
+
+<body>
+    <div id="allmap"></div>
+    <div id="footer">
+        <div class="dblock">
+            <!--<div class="inline-block"><img src="resources/images/logo-gray.png"></div>-->
+            <div class="inline-block copyright">
+                <p><a href="#">关于我们</a> | <a href="#">微博</a> | <a href="#">隐私政策</a> | <a href="#">人员招聘</a></p>
+                <p> Copyright © 2017 城市道路积水监测</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+<script type="text/javascript">
+// 百度地图API功能
+var map = new BMap.Map("allmap");
+var point = new BMap.Point(116.331398, 39.897445);
+map.centerAndZoom(point, 15);
+map.enableScrollWheelZoom();
+map.enableContinuousZoom();
+map.addControl(new BMap.NavigationControl());
+map.addControl(new BMap.ScaleControl());
+map.addControl(new BMap.OverviewMapControl());
+var geolocation = new BMap.Geolocation();
+
+
+//标注展示及标注位置选择
+var Devices_id = ["13719486", "13719496"];
+var depth_value = [0, 0];
+for (var i = 0; i < Devices_id.length; i++) {
+    //alert("devices "+Devices_id[i]);
+    //alert("function value is "+selectDepth(Devices_id[i]));
+    depth_value[i] = selectDepth(Devices_id[i]);
+    //
+    //alert("depth_value is"+depth_value[i]);
+}
+//getdatafromweb(depth_value[0],Devices_id[i]);
+
+var data_info = [
+    [116.359924,39.982359, 10],
+    [116.376363,39.973775,15],
+    [116.361442, 39.973381, 30],
+    [116.361927, 39.963483, 20],
+    [116.361927, 39.953483, 30],
+    [116.377728,39.963338,10], 
+    [116.35484,39.963897,10],
+    [116.376695,39.97383,15],
+    [116.340799,39.973277,10],
+
+    [116.361797, 39.967406, depth_value[0]],
+    [116.364927, 39.966303, depth_value[1]],
+
+
+    //[116.412222, 39.912345, depth_value[2]]
+];
+var opts = {
+    width: 250, // 信息窗口宽度
+    height: 80, // 信息窗口高度
+    title: "水深展示", // 信息窗口标题
+    enableMessage: true //设置允许信息窗发送短息
+};
+$(function() {
+            setInterval(draw_map, 10000);
+            function draw_map() {
+            	map.clearOverlays(); 
+                for (var i = 0; i < data_info.length; i++) {
+                    //alert(data_info);
+                    draw_circle(data_info[i][0], data_info[i][1], data_info[i][2]);
+                    //alert(data_info[i][2]);
+                }
+            }
+        });
+        /*var x=116.417754;
+        var y=39.921788;
+        var message10="101";
+        var marker10= new BMap.Marker(new BMap.Point(116.417754,39.920788)); 
+        var content10 = message;
+        map.addOverlay(marker10);               // 将标注添加到地图中
+        addClickHandler(content10,marker10);*/
+        /*var x=116.400244;
+        var y=39.92556;
+        var point = new BMap.Point(x,y);
+        var marker = new BMap.Marker(point);  // 创建标注
+        var deepth=101;
+        var content="积水深度："+String(deepth);
+        addClickHandler(content,marker);
+        map.addOverlay(marker); 
+        draw_circle(x,y,deepth);*/
+        var cr = new BMap.CopyrightControl({ anchor: BMAP_ANCHOR_TOP_RIGHT }); //设置版权控件位置
+        map.addControl(cr); //添加版权控件
+
+        var bs = map.getBounds(); //返回地图可视区域
+        cr.addCopyright({ id: 1, content: '<p style="line-height:75px;height:75px;display:block;color:red;content:"a"><img src=/images/example2.png /></p>' });
+
+        //select Depth from mysql
+        function selectDepth(devices, callback) {
+            var action = $(this).attr('action');
+            var temp = { devices_id: devices };
+            var depth;
+            //alert(temp.devices_id);
+            //alert("type is"+typeof(temp));
+            //post devices_id to look for datastreams.
+            $.ajax({
+                url: action,
+                type: "post",
+                async: false,
+                data: temp,
+                //dataType: "json",
+                success: function(data) {
+                    //alert(dat.,,. mm,.mmmmmmmmmmmmmmmmmmm, .m, .,. , .,. m ,.ma.value);
+                    //alert("the type of data is"+typeof(Number(data.value)));
+                    //alert("number is "+Number(data.value));
+                    depth = Number(data.value);
+                    //alert("data "+depth);
+                    //return depth;
+                }
+            });
+            //alert("data 2"+depth);
+            return depth;
+        }
+
+        //draw point 
+        function draw_circle(x, y, deepth) {
+            //alert(deepth);
+            var pt = new BMap.Point(x, y);
+            var myIconb = new BMap.Icon("/images/green.png", new BMap.Size(50, 50));
+            var myIcony = new BMap.Icon("/images/yellow.png", new BMap.Size(50, 50));
+            var myIconr = new BMap.Icon("/images/red.gif", new BMap.Size(50, 50));
+            if (deepth > 0 && deepth <= 20) {
+                var marker = new BMap.Marker(pt, { icon: myIconb });
+                var circle = new BMap.Circle(pt, 50, { fillColor: "green", strokeWeight: 1, fillOpacity: 0.3, strokeOpacity: 0.3 });
+                map.addOverlay(circle);
+                var content = "积水深度：" + String(deepth) + "cm" + "\n" + "<a href='/echart';style='margin:0;line-height:1.5;font-size:13px;text-indent:2em'>历史数据</a>";
+                addClickHandler(content, marker);
+                map.addOverlay(marker);
+
+            } else if (deepth > 20 && deepth <= 50) {
+                var marker = new BMap.Marker(pt, { icon: myIcony });
+                var circle = new BMap.Circle(pt, 50, { fillColor: "orange", strokeWeight: 1, fillOpacity: 0.3, strokeOpacity: 0.3 });
+                map.addOverlay(circle);
+                var content = "积水深度：" + String(deepth) + "cm" + "\n" + "<a href='/echart';style='margin:0;line-height:1.5;font-size:13px;text-indent:2em'>历史数据</a>";
+                addClickHandler(content, marker);
+                map.addOverlay(marker);
+            } else if (deepth > 50) {
+                var marker = new BMap.Marker(pt, { icon: myIconr });
+                var circle = new BMap.Circle(pt, 50, { fillColor: "red", strokeWeight: 1, fillOpacity: 0.3, strokeOpacity: 0.3 });
+                map.addOverlay(circle);
+                var content = "积水深度：" + String(deepth) + "cm" + "\n" + "<a href='/echart';style='margin:0;line-height:1.5;font-size:13px;text-indent:2em'>历史数据</a>";
+                //var scontent =
+                /*"<h4 style='margin:0 0 5px 0;padding:0.2em 0'>天安门</h4>" +  
+                "<a href='echart.html';style='margin:0;line-height:1.5;font-size:13px;text-indent:2em'>天安门坐落在中国北京市中心,故宫的南侧,与天安门广场隔长安街相望,是清朝皇城的大门...</a>" + 
+                "</div>";*/
+                addClickHandler(content, marker);
+                map.addOverlay(marker);
+            }
+        }
+
+        function addClickHandler(content, marker) {
+            marker.addEventListener("click", function(e) {
+                openInfo(content, e);
+            });
+        }
+
+        function openInfo(content, e) {
+            var p = e.target;
+            var point = new BMap.Point(p.getPosition().lng, p.getPosition().lat);
+            var infoWindow = new BMap.InfoWindow(content, opts); // 创建信息窗口对象 
+            map.openInfoWindow(infoWindow, point); //开启信息窗口
+        }
+        geolocation.getCurrentPosition(function(r) {
+            if (this.getStatus() == BMAP_STATUS_SUCCESS) {
+
+                var myIcon = new BMap.Icon("/images/mylocation.png", new BMap.Size(25, 25));
+                var mk = new BMap.Marker(r.point, { icon: myIcon });
+                //map.addOverlay(mk);
+                //var label = new BMap.Label("当前位置",{offset:new BMap.Size(20,-10)});
+                //mk.setLabel(label);
+                map.addOverlay(mk);
+                map.panTo(r.point);
+                //mk.setAnimation(BMAP_ANIMATION_BOUNCE);
+                var cpoint = new BMap.Point(r.point.lng, r.point.lat);
+                map.panTo(cpoint);
+            } else {
+                alert('failed' + this.getStatus());
+            }
+        }, { enableHighAccuracy: true });
+        //map.panTo(cpoint);
+
+        function getdatafromweb(data1, devices)
+        /*var obj={
+        	attr:'obj attr value'
+        }
+        function func(o){
+        	o.attr="new attr value!";
+        }
+        func(obj);*/
+        {
+            var xmlhttp;
+            if (window.XMLHttpRequest) { // code for IE7+, Firefox, Chrome, Opera, Safari
+                xmlhttp = new XMLHttpRequest();
+            } else { // code for IE6, IE5
+                xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            }
+            xmlhttp.onreadystatechange = function() {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    data1.attr = xmlhttp.responseText;
+                }
+            };
+            xmlhttp.open("POST", "/maphome", true);
+            xmlhttp.send();
+        }
+        // map.centerAndZoom(cpoint,12);
+        //关于状态码
+        //BMAP_STATUS_SUCCESS	检索成功。对应数值“0”。
+        //BMAP_STATUS_CITY_LIST	城市列表。对应数值“1”。
+        //BMAP_STATUS_UNKNOWN_LOCATION	位置结果未知。对应数值“2”。
+        //BMAP_STATUS_UNKNOWN_ROUTE	导航结果未知。对应数值“3”。
+        //BMAP_STATUS_INVALID_KEY	非法密钥。对应数值“4”。
+        //BMAP_STATUS_INVALID_REQUEST	非法请求。对应数值“5”。
+        //BMAP_STATUS_PERMISSION_DENIED	没有权限。对应数值“6”。(自 1.1 新增)
+        //BMAP_STATUS_SERVICE_UNAVAILABLE	服务不可用。对应数值“7”。(自 1.1 新增)
+        //BMAP_STATUS_TIMEOUT	超时。对应数值“8”。(自 1.1 新增)
+</script>

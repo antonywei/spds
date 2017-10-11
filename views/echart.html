@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>历史数据</title>
+    <style type="text/css">
+        body {width: 100%;height: 100%;margin:0;font-family:"微软雅黑";
+        background-image:url("/images/homebg.png");}
+        p{margin-left:5px; font-size:14px;}
+        .dblock{position:relative;z-index:100;width:100%;min-width:1280px;height:60px;padding-top:10px;
+            line-height:20px;color:#A9AFB7;border-top:1px solid #CCCCCC;text-align:center;}
+    </style>
+    <link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css"> 
+    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script> 
+    </head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main1" style="height:400px"></div>
+    <div id="main" style="height:400px"></div>
+<div class="container" align="center">
+       
+    <button type="button" class="btn btn-info btn-lg" onclick="javascrtpt:window.location.href='/mapHome'">返回地图</button>      
+</div>
+        <div id="footer">
+    <div class="dblock">
+        <!--<div class="inline-block"><img src="resources/images/logo-gray.png"></div>-->
+        <div class="inline-block copyright">
+            <p><a href="#">关于我们</a> | <a href="#">微博</a> | <a href="#">隐私政策</a> | <a href="#">人员招聘</a></p>
+            <p> Copyright © 2017 城市道路积水监测</p>
+        </div>
+    </div>
+    <!-- ECharts单文件引入 -->
+
+    <script src="http://echarts.baidu.com/build/dist/echarts.js"></script>
+    <script type="text/javascript">
+        // 路径配置
+        require.config({
+            paths: {
+                echarts: 'http://echarts.baidu.com/build/dist'
+            }
+        });
+        
+        // 使用
+        require(
+            [
+                'echarts',
+                'echarts/chart/bar', // 使用柱状图就加载bar模块，按需加载
+                'echarts/chart/line'
+            ],
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+                var myChart = ec.init(document.getElementById('main')); 
+                var myChart1 = ec.init(document.getElementById('main1')); 
+                
+                var option  = {
+                        title : {
+                            text: '月积水分布图',
+                            //subtext: '纯属虚构'
+                        },
+                        tooltip : {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data:['积水深度']
+                        },
+                        toolbox: {
+                            show : true,
+                            feature : {
+                                mark : {show: false},
+                                dataView : {show: true, readOnly: false},
+                                magicType : {show: true, type: ['line', 'bar']},
+                                restore : {show: true},
+                                saveAsImage : {show: true}
+                            }
+                        },
+                        calculable : true,
+                        xAxis : [
+                            {
+                                type : 'category',
+                                data : ['1日','2日','3日','4日','5日','6日','7日','8日','9日','10日','11日','12日','13日','14日','15日','16日','17日','18日','19日','20日','21日','22日','23日','24日','25日','26日','27日','28日','29日','30日']
+                            }
+                        ],
+                        yAxis : [
+                            {
+                                type : 'value'
+                            }
+                        ],
+                        series : [
+                            {
+                                name:'积水量',
+                                type:'bar',
+                                data:[2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0,2.0, 4.9, 7.0, 23.2, 51.6, 16.7, 135.6, 162.2, 32.6, 220.0,52.0, 4.9, 3.0, 43.2, 25.6, 76.7, 65.6, 62.2, 33.6, 27.0, ],
+                                markPoint : {
+                                    data : [
+                                        {type : 'max', name: '最大值'},
+                                        {type : 'min', name: '最小值'}
+                                    ]
+                                },
+                                markLine : {
+                                    data : [
+                                        {type : 'average', name: '平均值'}
+                                    ]
+                                }
+                            }, 
+                        ]
+                    };
+ var option1  = {
+                        title : {
+                            text: '日积水分布图',
+                            //subtext: '纯属虚构'
+                        },
+                        tooltip : {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data:['积水深度']
+                        },
+                        toolbox: {
+                            show : true,
+                            feature : {
+                                mark : {show: false},
+                                dataView : {show: true, readOnly: false},
+                                magicType : {show: true, type: ['line', 'bar']},
+                                restore : {show: true},
+                                saveAsImage : {show: true}
+                            }
+                        },
+                        calculable : true,
+                        xAxis : [
+                            {
+                                type : 'category',
+                                data : ['1:00','2:00','3:00','4:00','5:00','6:00','7:00','8:00','9:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00','24:00']
+                            }
+                        ],
+                        yAxis : [
+                            {
+                                type : 'value'
+                            }
+                        ],
+                        series : [
+                            {
+                                name:'积水量',
+                                type:'bar',
+                                data:[102.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3, 12.0, 42.9, 17.0, 123.2, 35.6, 36.7, 45.6, 62.2, 132.6, 120.0, 26.4, 33.3],
+                                markPoint : {
+                                    data : [
+                                        {type : 'max', name: '最大值'},
+                                        {type : 'min', name: '最小值'}
+                                    ]
+                                },
+                                markLine : {
+                                    data : [
+                                        {type : 'average', name: '平均值'}
+                                    ]
+                                }
+                            }, 
+                        ]
+                    };        
+                // 为echarts对象加载数据 
+                myChart.setOption(option); 
+                myChart1.setOption(option1); 
+            }
+        );
+    </script>
+</body>
